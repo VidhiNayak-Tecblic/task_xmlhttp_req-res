@@ -38,7 +38,8 @@ export default function User() {
   };
 
   useEffect(() => {
-    //  funA();
+    // Please have a look at the EasterEggFile on Desktop.
+    //  funA();  // Please uncomment me to see my data
     //  funB();
   }, []);
 
