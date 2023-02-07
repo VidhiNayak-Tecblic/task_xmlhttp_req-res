@@ -51,13 +51,16 @@ export default function User() {
   }, []);
 
   return (
-    <div className="User_maindiv  bg-black">
+    <div className="User_maindiv  bg-black ">
       <div>
         <div className="text-white">
-          <p>XMLHTTP REQUEST-RESPONSE</p>
+          <p className="text-2xl text-center mb-7">XMLHTTP REQUEST-RESPONSE</p>
         </div>
-        <div className="w-80">
-          <h1 className="text-white bg-gray-400 h-12">JSON data api</h1>
+
+        <div className="flex justify-around"> 
+          <div className="w-80">
+          <h1 className="text-white bg-gray-400 h-12">JSON Data:</h1>
+          <p className="text-white"> JSON typed api data showed</p>
           {userData &&
             userData.map((user) => (
               <div className="mt-12">
@@ -79,14 +82,14 @@ export default function User() {
               </div>
             ))}
         </div>
-      </div>
-
-      <div className="flex justify-center">
-        <div className="text-center mt-12 flex justify-center ">
+        
+        <div className="">
+        <div className="  w-80 ">
           <div>
-            <h2 className="bg-green-400 h-10">XML Data:</h2>
+            <h2 className="text-white bg-gray-400 h-12">XML Data:</h2>
+            <p className="text-white">XML Typed data converted to JSON and data showed</p>
             {parsedDataArray.map((item) => (
-              <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64">
+              <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64 ">
                 <hr />
                 <table>
                   <tr>
@@ -104,6 +107,12 @@ export default function User() {
           </div>
         </div>
       </div>
+        
+        </div>
+       
+      </div>
+
+    
     </div>
   );
 }
