@@ -57,65 +57,64 @@ export default function User() {
           <p className="text-2xl text-center mb-7">XMLHTTP REQUEST-RESPONSE</p>
         </div>
 
-        <div className="flex justify-around"> 
+        <div className="flex justify-around">
           <div className="w-80">
-          <h1 className="text-white bg-gray-400 h-12">JSON Data:</h1>
-          <p className="text-white"> JSON typed api data showed</p>
-          {userData &&
-            userData.map((user) => (
-              <div className="mt-12">
-                <div
-                  className="cardDiv bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200"
-                  key={user.id}
-                >
-                  <pre className="">
-                    NAME:- {user.name}
-                    <br />
-                    USERNAME:-{user.username}
-                    <br />
-                    PHONE:-{user.phone}
-                    <br />
-                    EMAIL:-{user.email}
-                    <br />
-                  </pre>
+            <h1 className="text-white bg-gray-400 h-12">JSON Data:</h1>
+            <p className="text-white"> JSON typed api data showed</p>
+            {userData &&
+              userData.map((user) => (
+                <div className="mt-12">
+                  <div
+                    className="cardDiv bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200"
+                    key={user.id}
+                  >
+                    <pre className="">
+                      NAME:- {user.name}
+                      <br />
+                      USERNAME:-{user.username}
+                      <br />
+                      PHONE:-{user.phone}
+                      <br />
+                      EMAIL:-{user.email}
+                      <br />
+                    </pre>
+                  </div>
                 </div>
+              ))}
+          </div>
+
+          <div className="">
+            <div className="  w-80 ">
+              <div>
+                <h2 className="text-white bg-gray-400 h-12">XML Data:</h2>
+                <p className="text-white">
+                  XML Typed data converted to JSON and data showed
+                </p>
+                {parsedDataArray.map((item) => (
+                  <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64 ">
+                    <hr />
+                    <table>
+                      <tr>
+                        <td>ID :{item.id}</td>
+                      </tr>
+                      <tr>
+                        <td>Name :{item.name}</td>
+                      </tr>
+                      <tr>
+                        <td>Course:{item.course}</td>
+                      </tr>
+                    </table>
+                  </div>
+                ))}
               </div>
-            ))}
-        </div>
-        
-        <div className="">
-        <div className="  w-80 ">
-          <div>
-            <h2 className="text-white bg-gray-400 h-12">XML Data:</h2>
-            <p className="text-white">XML Typed data converted to JSON and data showed</p>
-            {parsedDataArray.map((item) => (
-              <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64 ">
-                <hr />
-                <table>
-                  <tr>
-                    <td>ID :{item.id}</td>
-                  </tr>
-                  <tr>
-                    <td>Name :{item.name}</td>
-                  </tr>
-                  <tr>
-                    <td>Course:{item.course}</td>
-                  </tr>
-                </table>
-              </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
-        
-        </div>
-       
-      </div>
-
-    
     </div>
   );
 }
 //**************************************************************************************************************
 
 //now use xml typed data ,fetch the data then call the response
+//react
