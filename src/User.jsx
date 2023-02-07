@@ -4,11 +4,16 @@
 //trying json data to fetch and het responce
 
 import React, { useEffect, useState } from "react";
-import { xml2js } from "xml2js";
+
+import axios from "axios";
+import { parseString } from "xml2js";
 
 export default function User() {
   const [userData, setUserdata] = useState();
-  const [xmlData, setXmlData] = useState(null);
+  const [xmlData, setXmlData] = useState({});
+
+  //making state of Array for get perticular value(like name,id) from parsed json data
+  const [parsedDataArray, setParseddataarray] = useState([]);
 
   const funA = () => {
     fetch("https://jsonplaceholder.typicode.com/users")
@@ -18,40 +23,41 @@ export default function User() {
       .catch((error) => console.error(error));
   };
 
-  const funB = () => {
-    fetch(`https://www.w3schools.com/xml/plant_catalog.xml`)
-      .then((res) => res.text())
-      .then((text) => {
-        xml2js.parseString(text, (err, result) => {
-          if (err) {
-            console.error(err);
-          } else {
-            setXmlData(result);
-          }
-        });
-      });
+  const funB = async () => {
+    const res = await axios.get("http://127.0.0.1:8000/student");
+    console.log("XML_Typed_res ----> ", res.data);
 
-    // .then((response) => response.text())
-    // .then((str) => new window.DOMParser().parseFromString(str, "text/xml"))
-    // .then((xmlData) => setxmlTypeddata(xmlData))
-    // .then((text) => console.log("xmldata", xmlTypeddata));
+    // parsing xml data
+    parseString(res.data, function (err, results) {
+      // parsing to json
+      let data = JSON.stringify(results);
+      console.log("JSON_typed_res---->", JSON.parse(data));
+
+      //take stringify json data into variable ->set finaldata into blank object state
+      const FinalData = JSON.parse(data);
+      setXmlData(FinalData);
+
+      //make variable ,assigned the value that we get from data
+
+      const jsonDataArray = FinalData.root["list-item"];
+      setParseddataarray(jsonDataArray);
+      console.log("jsonDataArray", jsonDataArray);
+    });
   };
 
   useEffect(() => {
-    // Please have a look at the EasterEggFile on Desktop.
-    //  funA();  // Please uncomment me to see my data
-    //  funB();
+    funA();
+    funB();
   }, []);
 
-  console.log("userdata", userData);
   return (
     <div className="User_maindiv  bg-black">
       <div>
         <div className="text-white">
           <p>XMLHTTP REQUEST-RESPONSE</p>
         </div>
-        <div>
-          <h1 className="text-white">JSON data api</h1>
+        <div className="w-80">
+          <h1 className="text-white bg-gray-400 h-12">JSON data api</h1>
           {userData &&
             userData.map((user) => (
               <div className="mt-12">
@@ -75,17 +81,28 @@ export default function User() {
         </div>
       </div>
 
-      <div className="text-white">
-        {/* <div>
-          {xmlData ? (
-            <div>
-              <h2>XML Data:</h2>
-              <pre>{JSON.stringify(xmlData)}</pre>
-            </div>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div> */}
+      <div className="flex justify-center">
+        <div className="text-center mt-12 flex justify-center ">
+          <div>
+            <h2 className="bg-green-400 h-10">XML Data:</h2>
+            {parsedDataArray.map((item) => (
+              <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64">
+                <hr />
+                <table>
+                  <tr>
+                    <td>ID :{item.id}</td>
+                  </tr>
+                  <tr>
+                    <td>Name :{item.name}</td>
+                  </tr>
+                  <tr>
+                    <td>Course:{item.course}</td>
+                  </tr>
+                </table>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
