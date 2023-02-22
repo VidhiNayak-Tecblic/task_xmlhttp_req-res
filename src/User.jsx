@@ -11,6 +11,7 @@ import { parseString } from "xml2js";
 export default function User() {
   const [userData, setUserdata] = useState();
   const [xmlData, setXmlData] = useState({});
+  const [postData, setPostdata] = useState([]);
 
   //making state of Array for get perticular value(like name,id) from parsed json data
   const [parsedDataArray, setParseddataarray] = useState([]);
@@ -45,9 +46,21 @@ export default function User() {
     });
   };
 
+  const funC = async () => {
+    console.log("post_RESULT", postData.id, postData.name, postData.course);
+    const res = await axios.post("http://127.0.0.1:8000/student", {
+      id: 16,
+      Name: "Tisha",
+      Course: "java",
+    });
+
+    console.log("post_RESULT", res);
+  };
+
   useEffect(() => {
     funA();
     funB();
+    // funC();
   }, []);
 
   return (
@@ -110,6 +123,47 @@ export default function User() {
             </div>
           </div>
         </div>
+      </div>
+
+      <div>
+        <h1>Form</h1>
+        <label className="text-orange-500"> ID:</label>
+        <input
+          type="text"
+          name="id"
+          value={postData.id}
+          onChange={(e) => setPostdata(e.target.value)}
+          className="mt-7 "
+        />
+        <br />
+
+        <label className="text-orange-500"> NAME:</label>
+        <input
+          type="text"
+          name="name"
+          value={postData.name}
+          onChange={(e) => setPostdata(e.target.value)}
+          className="mt-7"
+        />
+        <br />
+
+        <label className="text-orange-500"> COURSE:</label>
+        <input
+          type="text"
+          name="course"
+          value={postData.course}
+          onChange={(e) => setPostdata(e.target.value)}
+          className="mt-7"
+        />
+        <br />
+
+        <button
+          type="button"
+          className="bg-green-300 mt-7"
+          onClick={() => funC()}
+        >
+          POST DATA
+        </button>
       </div>
     </div>
   );
