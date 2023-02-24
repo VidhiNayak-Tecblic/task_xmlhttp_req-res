@@ -6,17 +6,17 @@
 import React, { useEffect, useState } from "react";
 
 import axios from "axios";
-import { parseString } from "xml2js";
+import { parseString, Builder } from "xml2js";
 
 export default function User() {
   const [userData, setUserdata] = useState();
-  const [xmlData, setXmlData] = useState({});
-  const [postData, setPostdata] = useState([]);
+  const [postData, setPostdata] = useState({});
+  const [patchData, setPatchdata] = useState("");
 
   //making state of Array for get perticular value(like name,id) from parsed json data
   const [parsedDataArray, setParseddataarray] = useState([]);
 
-  const funA = () => {
+  const GetFakeJson = () => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
       .then((json) => setUserdata(json))
@@ -24,7 +24,7 @@ export default function User() {
       .catch((error) => console.error(error));
   };
 
-  const funB = async () => {
+  const XmlToJson = async () => {
     const res = await axios.get("http://127.0.0.1:8000/student");
     console.log("XML_Typed_res ----> ", res.data);
 
@@ -36,36 +36,96 @@ export default function User() {
 
       //take stringify json data into variable ->set finaldata into blank object state
       const FinalData = JSON.parse(data);
-      setXmlData(FinalData);
-
       //make variable ,assigned the value that we get from data
-
       const jsonDataArray = FinalData.root["list-item"];
       setParseddataarray(jsonDataArray);
       console.log("jsonDataArray", jsonDataArray);
     });
   };
 
-  const funC = async () => {
-    console.log("post_RESULT", postData.id, postData.name, postData.course);
-    const res = await axios.post("http://127.0.0.1:8000/student", {
-      id: 16,
-      Name: "Tisha",
-      Course: "java",
-    });
+  const JsonToXml = async (postData) => {
+    // const builder = new xml2js.Builder(); creates a new instance of the Builder class provided by the xml2js library.
+    // The Builder class is responsible for generating XML documents from JavaScript objects. It has various options
+    //  to control the output format, such as setting the root element name, specifying the encoding, defining namespaces, and more.
+    // Once you create a Builder instance, you can use its buildObject() method to convert a JavaScript object to an XML string.
+    //  The buildObject() method takes a single argument, which is the JavaScript object that you want to convert.
+    //inshort use Builder() to convert json data into xml
+    console.log("afterClickdata", postData, typeof postData);
+    const builder = new Builder();
 
-    console.log("post_RESULT", res);
+    const xmlStr = builder.buildObject(postData);
+
+    console.log("xmldata convert==========>", xmlStr);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/student",
+        xmlStr,
+        {
+          headers: {
+            "Content-Type": "application/xml",
+            Accept: "*/*",
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+
+  
+    try {
+      const response = await axios.patch(
+        "http://127.0.0.1:8000/student/"+{xmlStr},
+        xmlStr,
+        {
+          headers: {
+            "Content-Type": "application/xml",
+            Accept: "*/*",
+          },
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+  };
+
+  const handlePatch = (data) => {
+    console.log("datapatch===>", data.id);
+    axios.patch("http://127.0.0.1:8000/student/{}", data, {
+      headers: {
+        "Content-Type": "application/xml",
+        Accept: "*/*",
+      },
+    });
+  };
+
+  const handleChange = (event) => {
+    setPostdata({
+      ...postData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleChangePatch = (event) => {
+    console.log("patchstate======>", patchData);
+    setPatchdata({
+      ...patchData,
+      [event.target.name]: event.target.value,
+    });
   };
 
   useEffect(() => {
-    funA();
-    funB();
-    // funC();
+    GetFakeJson();
+    XmlToJson();
   }, []);
+
+  console.log("Beforeclickdata===>", postData);
 
   return (
     <div className="User_maindiv  bg-black ">
-      <div>
+      <div className=" ">
         <div className="text-white">
           <p className="text-2xl text-center mb-7">XMLHTTP REQUEST-RESPONSE</p>
         </div>
@@ -108,13 +168,48 @@ export default function User() {
                     <hr />
                     <table>
                       <tr>
-                        <td>ID :{item.id}</td>
+                        <td>
+                          ID :
+                          <input
+                            value={item.id}
+                            className="bg-gradient-to-r "
+                            onChange={handleChangePatch}
+                            onClick={() => handlePatch(item)}
+                          />
+                        </td>
                       </tr>
                       <tr>
-                        <td>Name :{item.name}</td>
+                        <td>
+                          STID :
+                          <input
+                            value={item.stid}
+                            className="bg-gradient-to-r"
+                            onChange={handleChangePatch}
+                            onClick={() => handlePatch(item)}
+                          />
+                        </td>
                       </tr>
                       <tr>
-                        <td>Course:{item.course}</td>
+                        <td>
+                          Name :
+                          <input
+                            value={item.name}
+                            className="bg-gradient-to-r"
+                            onChange={handleChangePatch}
+                            onClick={() => handlePatch(item)}
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          Course:
+                          <input
+                            value={item.course}
+                            className="bg-gradient-to-r"
+                            onChange={handleChangePatch}
+                            onClick={() => handlePatch(item)}
+                          />
+                        </td>
                       </tr>
                     </table>
                   </div>
@@ -125,45 +220,54 @@ export default function User() {
         </div>
       </div>
 
-      <div>
-        <h1>Form</h1>
-        <label className="text-orange-500"> ID:</label>
-        <input
-          type="text"
-          name="id"
-          value={postData.id}
-          onChange={(e) => setPostdata(e.target.value)}
-          className="mt-7 "
-        />
-        <br />
+      <div className="grid place-items-center mt-10 border-spacing-16 border-cyan-900 border rounded-full bg-[#2424836e]">
+        <h1 className="text-white mt-7 mb-5 text-3xl">Form</h1>
 
-        <label className="text-orange-500"> NAME:</label>
-        <input
-          type="text"
-          name="name"
-          value={postData.name}
-          onChange={(e) => setPostdata(e.target.value)}
-          className="mt-7"
-        />
-        <br />
-
-        <label className="text-orange-500"> COURSE:</label>
-        <input
-          type="text"
-          name="course"
-          value={postData.course}
-          onChange={(e) => setPostdata(e.target.value)}
-          className="mt-7"
-        />
-        <br />
-
-        <button
-          type="button"
-          className="bg-green-300 mt-7"
-          onClick={() => funC()}
-        >
-          POST DATA
-        </button>
+        <div className="flex flex-col">
+          <label className="text-cyan-300"> ID:</label>
+          <input
+            type="text"
+            name="id"
+            value={postData.id}
+            onChange={handleChange}
+            className="mt-7 w-64"
+          />
+          <br />
+          <label className="text-cyan-300"> STID:</label>
+          <input
+            type="text"
+            name="stid"
+            value={postData.stid}
+            onChange={handleChange}
+            className="mt-7 w-64"
+          />
+          <br />
+          <label className="text-cyan-300"> NAME:</label>
+          <input
+            type="text"
+            name="name"
+            value={postData.name}
+            onChange={handleChange}
+            className="mt-7 w-64"
+          />
+          <br />
+          <label className="text-cyan-300"> COURSE:</label>
+          <input
+            type="text"
+            name="course"
+            value={postData.course}
+            onChange={handleChange}
+            className="mt-7 w-64"
+          />
+          <br />
+          <button
+            type="button"
+            className="bg-green-300 mt-7 w-64 mb-5"
+            onClick={() => JsonToXml(postData)}
+          >
+            POST DATA
+          </button>
+        </div>
       </div>
     </div>
   );
