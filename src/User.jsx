@@ -7,15 +7,18 @@ import React, { useEffect, useState } from "react";
 
 import axios from "axios";
 import { parseString, Builder } from "xml2js";
+import { Put } from "react-axios";
 
 export default function User() {
-  const [userData, setUserdata] = useState();
+  const [userData, setUserdata] = useState([]);
   const [postData, setPostdata] = useState({});
   const [patchData, setPatchdata] = useState("");
+  const [putData, setPutdata] = useState({});
 
   //making state of Array for get perticular value(like name,id) from parsed json data
   const [parsedDataArray, setParseddataarray] = useState([]);
 
+  //in this function we get data from fake json typed data server
   const GetFakeJson = () => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
@@ -24,7 +27,8 @@ export default function User() {
       .catch((error) => console.error(error));
   };
 
-  const XmlToJson = async () => {
+  //in this function we get data from xml typed data server and convert xml data into json typed
+  const GetXmlData = async () => {
     const res = await axios.get("http://127.0.0.1:8000/student");
     console.log("XML_Typed_res ----> ", res.data);
 
@@ -43,20 +47,19 @@ export default function User() {
     });
   };
 
-  const JsonToXml = async (postData) => {
+  //in this function we post data to server and convert json data into xml typed
+  const PostData = async (postData) => {
     // const builder = new xml2js.Builder(); creates a new instance of the Builder class provided by the xml2js library.
     // The Builder class is responsible for generating XML documents from JavaScript objects. It has various options
     //  to control the output format, such as setting the root element name, specifying the encoding, defining namespaces, and more.
     // Once you create a Builder instance, you can use its buildObject() method to convert a JavaScript object to an XML string.
     //  The buildObject() method takes a single argument, which is the JavaScript object that you want to convert.
     //inshort use Builder() to convert json data into xml
+
     console.log("afterClickdata", postData, typeof postData);
     const builder = new Builder();
-
     const xmlStr = builder.buildObject(postData);
-
     console.log("xmldata convert==========>", xmlStr);
-
     try {
       const response = await axios.post(
         "http://127.0.0.1:8000/student",
@@ -69,31 +72,13 @@ export default function User() {
         }
       );
     } catch (error) {
-      console.error(error);
+      console.error("posterror", error);
     }
-
-
-  
-    try {
-      const response = await axios.patch(
-        "http://127.0.0.1:8000/student/"+{xmlStr},
-        xmlStr,
-        {
-          headers: {
-            "Content-Type": "application/xml",
-            Accept: "*/*",
-          },
-        }
-      );
-    } catch (error) {
-      console.error(error);
-    }
-
   };
 
   const handlePatch = (data) => {
-    console.log("datapatch===>", data.id);
-    axios.patch("http://127.0.0.1:8000/student/{}", data, {
+    console.log("datapatch===>", data);
+    axios.patch("http://127.0.0.1:8000/student/", data, {
       headers: {
         "Content-Type": "application/xml",
         Accept: "*/*",
@@ -101,7 +86,7 @@ export default function User() {
     });
   };
 
-  const handleChange = (event) => {
+  const handleChangePost = (event) => {
     setPostdata({
       ...postData,
       [event.target.name]: event.target.value,
@@ -116,9 +101,31 @@ export default function User() {
     });
   };
 
+  const Delete = async (id) => {
+    // .delete(`https://jsonplaceholder.typicode.com/users/${id}`)
+    // setUserdata((userData) => userData.filter((user) => user.id !== id));
+    await axios
+      .delete(`http://127.0.0.1:8000/student/${id}`)
+      .then((res) => console.log("deleted data ", res))
+      .catch((err) => console.log("Deleteerr", err));   
+      setParseddataarray((userData) => userData.filter((user) => user.id !== id));
+
+
+
+  };
+
+  const Edit = async (data) => {
+    setPostdata(data);
+
+  
+    await axios
+      .put(`http://127.0.0.1:8000/student/${data.id}/`, data)
+      .then((res) => console.log("updated data ", res))
+      .catch((err) => console.log("updatederr", err));
+  };
   useEffect(() => {
     GetFakeJson();
-    XmlToJson();
+    GetXmlData();
   }, []);
 
   console.log("Beforeclickdata===>", postData);
@@ -138,7 +145,7 @@ export default function User() {
               userData.map((user) => (
                 <div className="mt-12">
                   <div
-                    className="cardDiv bg-gradient-to-r from-indigo-200 via-purple-200 to-pink-200"
+                    className="cardDiv bg-gradient-to-r from-indigo-400 via-green-200 to-green-100"
                     key={user.id}
                   >
                     <pre className="">
@@ -151,6 +158,12 @@ export default function User() {
                       EMAIL:-{user.email}
                       <br />
                     </pre>
+                    {/* <button
+                      className="bg-cyan-900 text-slate-200"
+                      onClick={() => Delete(user.id)}
+                    >
+                      del
+                    </button> */}
                   </div>
                 </div>
               ))}
@@ -164,9 +177,24 @@ export default function User() {
                   XML Typed data converted to JSON and data showed
                 </p>
                 {parsedDataArray.map((item) => (
-                  <div className="text-center mt-7  bg-gradient-to-r from-green-100 to-yellow-100 w-64 ">
+                  <div className="text-center mt-7  bg-gradient-to-r from-purple-300 to-blue-400 w-64 ">
                     <hr />
                     <table>
+                      <div className="flex gap-4">
+                        <button
+                          className="bg-lime-900	text-slate-200"
+                          onClick={() => Edit(item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="bg-cyan-900 text-slate-200"
+                          onClick={() => Delete(item.id)}
+                        >
+                          del
+                        </button>
+                      </div>
+
                       <tr>
                         <td>
                           ID :
@@ -229,7 +257,7 @@ export default function User() {
             type="text"
             name="id"
             value={postData.id}
-            onChange={handleChange}
+            onChange={handleChangePost}
             className="mt-7 w-64"
           />
           <br />
@@ -238,7 +266,7 @@ export default function User() {
             type="text"
             name="stid"
             value={postData.stid}
-            onChange={handleChange}
+            onChange={handleChangePost}
             className="mt-7 w-64"
           />
           <br />
@@ -247,7 +275,7 @@ export default function User() {
             type="text"
             name="name"
             value={postData.name}
-            onChange={handleChange}
+            onChange={handleChangePost}
             className="mt-7 w-64"
           />
           <br />
@@ -256,14 +284,14 @@ export default function User() {
             type="text"
             name="course"
             value={postData.course}
-            onChange={handleChange}
+            onChange={handleChangePost}
             className="mt-7 w-64"
           />
           <br />
           <button
             type="button"
             className="bg-green-300 mt-7 w-64 mb-5"
-            onClick={() => JsonToXml(postData)}
+            onClick={() => PostData(postData)}
           >
             POST DATA
           </button>
