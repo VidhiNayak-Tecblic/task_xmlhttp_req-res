@@ -7,13 +7,12 @@ import React, { useEffect, useState } from "react";
 
 import axios from "axios";
 import { parseString, Builder } from "xml2js";
-import { Put } from "react-axios";
 
 export default function User() {
   const [userData, setUserdata] = useState([]);
   const [postData, setPostdata] = useState({});
   const [patchData, setPatchdata] = useState("");
-  const [putData, setPutdata] = useState({});
+ 
 
   //making state of Array for get perticular value(like name,id) from parsed json data
   const [parsedDataArray, setParseddataarray] = useState([]);
@@ -48,7 +47,7 @@ export default function User() {
   };
 
   //in this function we post data to server and convert json data into xml typed
-  const PostData = async (postData) => {
+  const submit = async (postData) => {
     // const builder = new xml2js.Builder(); creates a new instance of the Builder class provided by the xml2js library.
     // The Builder class is responsible for generating XML documents from JavaScript objects. It has various options
     //  to control the output format, such as setting the root element name, specifying the encoding, defining namespaces, and more.
@@ -56,6 +55,14 @@ export default function User() {
     //  The buildObject() method takes a single argument, which is the JavaScript object that you want to convert.
     //inshort use Builder() to convert json data into xml
 
+    if (postData.id) {
+      updateData(postData.id, postData);
+    } else {
+      post_Data(postData);
+    }
+  };
+
+  const post_Data = async (postData) => {
     console.log("afterClickdata", postData, typeof postData);
     const builder = new Builder();
     const xmlStr = builder.buildObject(postData);
@@ -73,6 +80,25 @@ export default function User() {
       );
     } catch (error) {
       console.error("posterror", error);
+    }
+  };
+
+  const updateData = async (id, data) => {
+    const builder = new Builder();
+    const xmlStr = builder.buildObject(data);
+    try {
+      const response = await axios.put(
+        `http://127.0.0.1:8000/student/${id}/`,
+        xmlStr,
+        {
+          headers: {
+            "Content-Type": "application/xml",
+            Accept: "*/*",
+          },
+        }
+      );
+    } catch (error) {
+      console.error("puterror", error);
     }
   };
 
@@ -107,22 +133,15 @@ export default function User() {
     await axios
       .delete(`http://127.0.0.1:8000/student/${id}`)
       .then((res) => console.log("deleted data ", res))
-      .catch((err) => console.log("Deleteerr", err));   
-      setParseddataarray((userData) => userData.filter((user) => user.id !== id));
-
-
-
+      .catch((err) => console.log("Deleteerr", err));
+    setParseddataarray((userData) => userData.filter((user) => user.id !== id));
   };
 
+  //on click edit the data will be shown in tableform fields
   const Edit = async (data) => {
     setPostdata(data);
-
-  
-    await axios
-      .put(`http://127.0.0.1:8000/student/${data.id}/`, data)
-      .then((res) => console.log("updated data ", res))
-      .catch((err) => console.log("updatederr", err));
   };
+
   useEffect(() => {
     GetFakeJson();
     GetXmlData();
@@ -252,14 +271,15 @@ export default function User() {
         <h1 className="text-white mt-7 mb-5 text-3xl">Form</h1>
 
         <div className="flex flex-col">
-          <label className="text-cyan-300"> ID:</label>
+          {/* <label className="text-cyan-300"> ID:</label>
           <input
             type="text"
             name="id"
+            disabled
             value={postData.id}
             onChange={handleChangePost}
             className="mt-7 w-64"
-          />
+          /> */}
           <br />
           <label className="text-cyan-300"> STID:</label>
           <input
@@ -288,13 +308,26 @@ export default function User() {
             className="mt-7 w-64"
           />
           <br />
-          <button
-            type="button"
-            className="bg-green-300 mt-7 w-64 mb-5"
-            onClick={() => PostData(postData)}
-          >
-            POST DATA
-          </button>
+
+          {/*1)there are not id created in form -->we fill up data and post it to server then id created(post api)
+          2)now clicked on edit button ,we have id and also other data which is stated at form input field we change data and update it(put api)   */}
+          {postData?.id ? (
+            <button
+              type="button"
+              className="bg-green-300 mt-7 w-64 mb-5"
+              onClick={() => submit(postData)}
+            >
+              UPDATE DATA
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="bg-green-300 mt-7 w-64 mb-5"
+              onClick={() => submit(postData)}
+            >
+              POST DATA
+            </button>
+          )}
         </div>
       </div>
     </div>
