@@ -12,7 +12,6 @@ export default function User() {
   const [userData, setUserdata] = useState([]);
   const [postData, setPostdata] = useState({});
   const [patchData, setPatchdata] = useState("");
- 
 
   //making state of Array for get perticular value(like name,id) from parsed json data
   const [parsedDataArray, setParseddataarray] = useState([]);
@@ -54,7 +53,7 @@ export default function User() {
     // Once you create a Builder instance, you can use its buildObject() method to convert a JavaScript object to an XML string.
     //  The buildObject() method takes a single argument, which is the JavaScript object that you want to convert.
     //inshort use Builder() to convert json data into xml
-
+   
     if (postData.id) {
       updateData(postData.id, postData);
     } else {
@@ -63,6 +62,7 @@ export default function User() {
   };
 
   const post_Data = async (postData) => {
+   
     console.log("afterClickdata", postData, typeof postData);
     const builder = new Builder();
     const xmlStr = builder.buildObject(postData);
@@ -84,10 +84,11 @@ export default function User() {
   };
 
   const updateData = async (id, data) => {
+
     const builder = new Builder();
     const xmlStr = builder.buildObject(data);
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `http://127.0.0.1:8000/student/${id}/`,
         xmlStr,
         {
